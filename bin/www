@@ -57,7 +57,7 @@ function onError(error) {
     throw error;
   }
 
-  let bind = typeof port === 'string'
+  var bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port;
 
