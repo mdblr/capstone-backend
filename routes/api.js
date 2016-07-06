@@ -21,14 +21,15 @@ let geoLocReq = {
 /* post user's address */
 
 router.post('/nearby', (req, res, next) => {
-
   geoLocReq.addr = `address=${req.body.addr.replace(/ ||([.])/g, filter)}`;
 
   fetch(`${geoLocReq.url + geoLocReq.addr + geoLocReq.key}`)
     .then(result => {
+
       return result.json();
     })
     .then(geoLocRes => {
+      console.log(geoLocRes);
       geog = geoLocRes.results[0].geometry.location;
       return knex.raw(
         `SELECT * FROM
@@ -44,7 +45,8 @@ router.post('/nearby', (req, res, next) => {
               OFFSET 0
               LIMIT 15;`);
     }).then(knex_data => {
-      results = knex_data;
+
+      results = knex_data.rows;
       res.json(results);
     });
 });
