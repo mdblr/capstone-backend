@@ -8,44 +8,44 @@ const fetch = require('node-fetch');
 
 // dotenv.load();
 
+const filter = match => {
+  return match === ' ' ? '+' : '';
+}
+
 let geog, results;
 let geoLocReq = {
   url: 'https://maps.googleapis.com/maps/api/geocode/json?',
   key: `&key=${process.env.GOOG_KEY}`
 }
 
-const format = match => {
-  return match === ' ' ? '+' : '';
-}
-
 /* post user's address */
 
 router.post('/nearby', (req, res, next) => {
 
-  geoLocReq.addr = `address=${req.body.addr.replace(/ ||([.])/g, format)}`;
+  geoLocReq.addr = `address=${req.body.addr.replace(/ ||([.])/g, filter)}`;
 
   fetch(`${geoLocReq.url + geoLocReq.addr + geoLocReq.key}`)
     .then(result => {
       return result.json();
-
-    }).then( geoLocRes => {
+    })
+    .then(geoLocRes => {
       geog = geoLocRes.results[0].geometry.location;
       return knex.raw(
-          `SELECT * FROM
-            ( SELECT id, lat, long,
-              ( 3959 * acos(
-                cos( radians( ${geog.lat} )) * cos( radians(lat)) *
-                cos( radians(long) - radians( ${geog.lng} ) ) +
-                sin( radians( ${geog.lat} )) * sin( radians(lat))))
-                AS distance FROM locdata)
-                AS distances
-                WHERE distance < 1
-                ORDER BY distance
-                OFFSET 0 LIMIT 15;`)
-
-    }).then( knex_data => {
+        `SELECT * FROM
+          ( SELECT id, lat, long,
+            ( 3959 * acos(
+              cos( radians( ${geog.lat} )) * cos( radians(lat)) *
+              cos( radians(long) - radians( ${geog.lng} ) ) +
+              sin( radians( ${geog.lat} )) * sin( radians(lat))))
+              AS distance FROM locdata)
+              AS distances
+              WHERE distance < 1
+              ORDER BY distance
+              OFFSET 0
+              LIMIT 15;`);
+    }).then(knex_data => {
       results = knex_data;
-      return results;
+      res.json(results);
     });
 });
 
