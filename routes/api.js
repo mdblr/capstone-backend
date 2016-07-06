@@ -2,12 +2,11 @@
 
 const express = require('express');
 const router = express.Router();
-const http = require('http');
 const knex = require('../db/knex');
 const dotenv = require('dotenv');
 const fetch = require('node-fetch');
 
-dotenv.load();
+// dotenv.load();
 
 let geog, results;
 let geoLocReq = {
