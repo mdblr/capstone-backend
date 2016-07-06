@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../db/knex');
-const dotenv = require('dotenv');
+// const dotenv = require('dotenv');
 const fetch = require('node-fetch');
 
 // dotenv.load();
