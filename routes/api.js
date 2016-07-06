@@ -3,10 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../db/knex');
-// const dotenv = require('dotenv');
+const dotenv = require('dotenv').load();
 const fetch = require('node-fetch');
-
-// dotenv.load();
 
 const filter = match => {
   return match === ' ' ? '+' : '';
@@ -45,7 +43,7 @@ router.post('/nearby', (req, res, next) => {
               OFFSET 0
               LIMIT 15;`);
     }).then(knex_data => {
-
+      console.log(knex_data);
       results = knex_data.rows;
       res.json(results);
     });
