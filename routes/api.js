@@ -33,8 +33,8 @@ router.post('/nearby', (req, res, next) => {
         `SELECT * FROM
           ( SELECT id, lat, long,
             ( 3959 * acos(
-              cos( radians( 47.6611 ${geog.lat} )) * cos( radians(lat)) *
-              cos( radians(long) - radians(  -122.338${geog.lng} ) ) +
+              cos( radians( ${geog.lat} )) * cos( radians(lat)) *
+              cos( radians(long) - radians( ${geog.lng} ) ) +
               sin( radians( ${geog.lat} )) * sin( radians(lat))))
               AS distance FROM locdata)
               AS distances
@@ -43,12 +43,10 @@ router.post('/nearby', (req, res, next) => {
               OFFSET 0
               LIMIT 15;`);
     }).then(knex_data => {
-      console.log(knex_data);
+      
       results = knex_data.rows;
       res.json(results);
-    }).catch(err => {
-      console.log(err);
-    })
+    }).catch(err => {})
 });
 
 module.exports = router;
