@@ -5,6 +5,10 @@ const router = express.Router();
 const knex = require('../db/knex');
 const dotenv = require('dotenv').load();
 const fetch = require('node-fetch');
+const Area = require('../models/locdata');
+const ReSrc = require('../models/orgdata');
+const Help = require('../models/services');
+
 
 const filter = match => {
   return match === ' ' ? '+' : '';
@@ -23,30 +27,34 @@ router.post('/nearby', (req, res, next) => {
 
   fetch(`${geoLocReq.url + geoLocReq.addr + geoLocReq.key}`)
     .then(result => {
-
       return result.json();
     })
-    .then(geoLocRes => {
-      console.log(geoLocRes);
-      geog = geoLocRes.results[0].geometry.location;
-      return knex.raw(
-        `SELECT * FROM
-          ( SELECT id, lat, long,
-            ( 3959 * acos(
-              cos( radians( ${geog.lat} )) * cos( radians(lat)) *
-              cos( radians(long) - radians( ${geog.lng} ) ) +
-              sin( radians( ${geog.lat} )) * sin( radians(lat))))
-              AS distance FROM locdata)
-              AS distances
-              WHERE distance < 1
-              ORDER BY distance
-              OFFSET 0
-              LIMIT 15;`);
-    }).then(knex_data => {
-      
-      results = knex_data.rows;
-      res.json(results);
-    }).catch(err => {})
+    .then(geoLocResult => {
+      geog = geoLocResult.results[0].geometry.location;
+      return Area.search(geog.lat, geog.lng);
+    })
+    .then(loc_results => {
+      return Promise.all(
+        loc_results.rows.map(location => {
+          return ReSrc.local(location.id)
+            .then(organizations => {
+              location.orgs = organizations;
+              return Promise.all(
+                location.orgs.map(org => {
+                  return Help.services(org.id)
+                    .then(services => {
+                      org.services = services;
+                      return org;
+                    })
+                }));
+            })
+        })).then(prox_services => {
+        results = prox_services;
+        res.json(results);
+      })
+    }).catch(err => {
+      throw err;
+    });
 });
 
 module.exports = router;
