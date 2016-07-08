@@ -12,7 +12,8 @@ const filter = match => {
   return match === ' ' ? '+' : '';
 }
 
-let geog, results;
+let geog;
+let results = {};
 let geoLocReq = {
   url: 'https://maps.googleapis.com/maps/api/geocode/json?',
   key: `&key=${process.env.GOOG_KEY}`
@@ -24,8 +25,8 @@ router.post('/nearby', (req, res, next) => {
   geoLocReq.addr = `address=${req.body.addr.replace(/ ||([.])/g, filter)}`;
 
   fetch(`${geoLocReq.url + geoLocReq.addr + geoLocReq.key}`)
-    .then(result => {
-      return result.json();
+    .then(goog_geo_json => {
+      return goog_geo_json.json();
     })
     .then(geoLocResult => {
       geog = geoLocResult.results[0].geometry.location;
@@ -47,8 +48,8 @@ router.post('/nearby', (req, res, next) => {
                 }));
             })
         })).then(prox_services => {
-        results = prox_services;
-        results.push(geog); 
+        results.req = geog;
+        results.res = prox_services;
         res.json(results);
       })
     }).catch(err => {
