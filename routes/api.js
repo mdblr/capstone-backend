@@ -8,8 +8,6 @@ const fetch = require('node-fetch');
 const Area = require('../models/locdata');
 const ReSrc = require('../models/orgdata');
 const Help = require('../models/services');
-
-
 const filter = match => {
   return match === ' ' ? '+' : '';
 }
@@ -50,6 +48,7 @@ router.post('/nearby', (req, res, next) => {
             })
         })).then(prox_services => {
         results = prox_services;
+        results.push(geog); 
         res.json(results);
       })
     }).catch(err => {
