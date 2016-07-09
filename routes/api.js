@@ -43,6 +43,7 @@ router.post('/nearby', (req, res, next) => {
                   return Help.services(org.id)
                     .then(services => {
                       org.services = services;
+                      org.geog = { lat: location.lat, lng: location.long }
                       return org;
                     })
                 }));
