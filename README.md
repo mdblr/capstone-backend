@@ -1,8 +1,8 @@
 #SCRL Backend
 
 Post endpoint: http://sea-crisis-resource.herokuapp.com/api/nearby
-Accepts JSON: {"addr":"your address"}
-Returns material, health, and human resources within one mile radius
+
+Returns material, health, and human resources within one mile radius. Data includes hours of operation, descriptions, address, and more.
 
 Example: 
 
